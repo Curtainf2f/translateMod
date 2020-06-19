@@ -8,6 +8,7 @@ import com.github.curtainf2f.translateMod.config.ConfigLoader;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -46,29 +47,27 @@ public class ListenChatBar {
 		return null;
 	}
 	
-	public ITextComponent getHoverMessage(String show, String hover) {
-		TextComponentString tx = new TextComponentString(show);
+	public ITextComponent getHoverMessage(ITextComponent show, String hover) {
 		Style style = new Style();
 		HoverEvent he = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(hover));
 		style.setHoverEvent(he);
-		tx.setStyle(style);
-		return tx;
+		show.setStyle(style);
+		return show;
 	}
 	
 	@SubscribeEvent
 	public void getMessage(ClientChatReceivedEvent event) {
-		String st = "类型: " + event.getType().name() + "  消息: " + event.getMessage().getFormattedText();
-		String msg = event.getMessage().getFormattedText();
+		ITextComponent msg = event.getMessage();
 		String need = event.getMessage().getUnformattedText();
 		try {
 			if(checkBlack(need)) return ;
 			Matcher f = matchString(need);
 			if(f == null) return;
 			need = need.replace(f.group(0), "");
-			event.setMessage(new TextComponentString("翻译中..."));
-			event.setMessage(getHoverMessage(f.group(0) + BaiduTranslator.translate(need, "auto", "zh"), st));
+			event.setMessage(getHoverMessage(msg, "翻译中"));
+			event.setMessage(getHoverMessage(msg, "类型: " + event.getType().name() + "\n" + f.group(0) + BaiduTranslator.translate(need, "auto", "zh")));
 		}catch(Exception e) {
-			event.setMessage(new TextComponentString(msg + "   " + e.getMessage()));
+			event.setMessage(getHoverMessage(msg, e.getMessage()));
 		}
 	}
 }

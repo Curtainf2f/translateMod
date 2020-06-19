@@ -1,2 +1,6 @@
 key.curtainf2f.translation.sendTranslatedMessage=发送你想要翻译的信息
 key.curtainf2f.translation=翻译
+config.translatemod.general.APPID=APPID
+config.translatemod.general.securityKey=密钥
+config.translatemod.general.shieldList=屏蔽列表(正则表达式)
+config.translatemod.general.findList=匹配列表(正则表达式)

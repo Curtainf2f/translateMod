@@ -25,5 +25,5 @@ public class ConfigLoader {
     @Config.Comment("只有在这之中被匹配到的,且不在屏蔽列表里的才被翻译\n被匹配部分不会被翻译\n想匹配到并翻译用(?<=匹配内容)\n正则表达式学习网址: https://www.runoob.com/java/java-regular-expressions.html 看正则表达式语法")
     @Config.LangKey("config.translatemod.general.findList")
     @Config.Name("findList")
-    public static String[] findList = new String[] {"^(?=[\\w\\W])"};
+    public static String[] findList = new String[] {"^(?=[\\w])"};
 }

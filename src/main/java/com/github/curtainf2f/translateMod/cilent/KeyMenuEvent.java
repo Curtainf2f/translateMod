@@ -18,7 +18,7 @@ public class KeyMenuEvent {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
-        if (KeyLoader.setTranslation.isPressed())
+        if (KeyLoader.sendTranslatedMessage.isPressed())
         {
         	Minecraft mc = Minecraft.getMinecraft();
         	mc.displayGuiScreen(new Sender(mc.currentScreen));

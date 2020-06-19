@@ -13,7 +13,6 @@ public class BaiduTranslator {
 		try {
 			TransApi api = new TransApi(ConfigLoader.appid , ConfigLoader.securityKey);
 			String str = api.getTransResult(msg, from, to);
-			System.out.println(str);
 			JsonObject jsonObj = (JsonObject)new JsonParser().parse(str);
 			if(jsonObj.has("error_code")) {
 				int code = jsonObj.get("error_code").getAsInt();

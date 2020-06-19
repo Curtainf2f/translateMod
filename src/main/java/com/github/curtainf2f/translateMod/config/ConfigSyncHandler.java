@@ -15,7 +15,6 @@ public class ConfigSyncHandler {
 	
     @SubscribeEvent
     public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-        System.out.println("test");
         if (event.getModID().equals(TranslateMod.MODID)) {
             ConfigManager.sync(TranslateMod.MODID, Config.Type.INSTANCE);
         }

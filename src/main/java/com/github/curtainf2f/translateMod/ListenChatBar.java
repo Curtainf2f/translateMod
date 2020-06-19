@@ -1,19 +1,14 @@
 package com.github.curtainf2f.translateMod;
 
-import java.io.UnsupportedEncodingException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.baidu.translate.demo.TransApi;
 import com.github.curtainf2f.translateMod.config.ConfigLoader;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.util.text.event.HoverEvent.Action;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -21,6 +16,34 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ListenChatBar {
 	public ListenChatBar() {
 		MinecraftForge.EVENT_BUS.register(this);
+	}
+	
+	boolean checkBlack(String msg) throws Exception{
+		int i = 0;
+		try {
+			for(i = 0; i < ConfigLoader.shieldList.length; i ++) {
+				Pattern p = Pattern.compile(ConfigLoader.shieldList[i]);
+				Matcher m = p.matcher(msg);
+				if(m.find()) return true;
+			}
+		}catch(Exception e) {
+			throw new Exception("屏蔽列表第" + String.valueOf(i+1) + "条正则表达式有误");
+		}
+		return false;
+	}
+	
+	Matcher matchString(String msg) throws Exception{
+		int i = 0;
+		try {
+			for(i = 0; i < ConfigLoader.findList.length; i ++) {
+				Pattern p = Pattern.compile(ConfigLoader.findList[i]);
+				Matcher m = p.matcher(msg);
+				if(m.find()) return m;
+			}
+		}catch(Exception e) {
+			throw new Exception("匹配列表第" + String.valueOf(i+1) + "条正则表达式有误");
+		}
+		return null;
 	}
 	
 	public ITextComponent getHoverMessage(String show, String hover) {
@@ -38,8 +61,12 @@ public class ListenChatBar {
 		String msg = event.getMessage().getFormattedText();
 		String need = event.getMessage().getUnformattedText();
 		try {
+			if(checkBlack(need)) return ;
+			Matcher f = matchString(need);
+			if(f == null) return;
+			need = need.replace(f.group(0), "");
 			event.setMessage(new TextComponentString("翻译中..."));
-			event.setMessage(getHoverMessage(BaiduTranslator.translate(need, "auto", "zh"), st));
+			event.setMessage(getHoverMessage(f.group(0) + BaiduTranslator.translate(need, "auto", "zh"), st));
 		}catch(Exception e) {
 			event.setMessage(new TextComponentString(msg + "   " + e.getMessage()));
 		}

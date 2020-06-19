@@ -68,7 +68,7 @@ public class Sender extends GuiScreen{
         	return;
     	}
         if(message.textboxKeyTyped(par1, par2)) return;
-        if(mc.world != null && par2 == KeyLoader.setTranslation.getKeyCode()) {
+        if(mc.world != null && par2 == KeyLoader.sendTranslatedMessage.getKeyCode()) {
         	mc.displayGuiScreen(parentScreen);
         	return ;
         }

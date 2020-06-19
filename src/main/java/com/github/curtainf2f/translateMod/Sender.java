@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import org.lwjgl.input.Keyboard;
 
 import com.baidu.translate.demo.TransApi;
+import com.github.curtainf2f.translateMod.cilent.KeyLoader;
 import com.github.curtainf2f.translateMod.config.ConfigLoader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -29,25 +30,9 @@ public class Sender extends GuiScreen{
     	parentScreen = parent;
     }
     
-	public String translate(String msg) {
-		try {
-			TransApi api = new TransApi(ConfigLoader.appid , ConfigLoader.securityKey);
-			String str = api.getTransResult(msg, "zh", "en");
-			JsonObject jsonObj = (JsonObject)new JsonParser().parse(str);
-			String res = jsonObj.get("trans_result").toString();
-			JsonArray js = new JsonParser().parse(res).getAsJsonArray();
-			jsonObj = (JsonObject)js.get(0);
-	        return jsonObj.get("dst").getAsString();
-		} catch (UnsupportedEncodingException e) {
-			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("翻译失败!"));
-			return " ";
-		}
-	}
-    
     @Override
     public void initGui()
     {
-    	Keyboard.enableRepeatEvents(true);
     	message = new GuiTextField(1111, fontRenderer, 0, (int)(height*0.4), width, (int)(height*0.1));
     	message.setMaxStringLength(111);
     	message.setFocused(true);
@@ -59,7 +44,12 @@ public class Sender extends GuiScreen{
     @Override
     protected void actionPerformed(GuiButton button) {
         if(button == send){
-        	Minecraft.getMinecraft().player.sendChatMessage(translate(message.getText()));
+    		try {
+				Minecraft.getMinecraft().player.sendChatMessage(BaiduTranslator.translate(message.getText(), "zh", "en"));
+			} catch (Exception e) {
+				mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(e.getMessage()));
+			}
+        	mc.displayGuiScreen(parentScreen);
         }
         else if(button == close) {
         	mc.displayGuiScreen(parentScreen);
@@ -68,14 +58,28 @@ public class Sender extends GuiScreen{
     
     @Override
     protected void keyTyped(char par1, int par2) throws IOException {
-        if(message.textboxKeyTyped(par1, par2))
-            return;
+    	if(par2 == org.lwjgl.input.Keyboard.KEY_RETURN || par2 == org.lwjgl.input.Keyboard.KEY_NUMPADENTER) {
+    		try {
+				Minecraft.getMinecraft().player.sendChatMessage(BaiduTranslator.translate(message.getText(), "zh", "en"));
+			} catch (Exception e) {
+				mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(e.getMessage()));
+			}
+        	mc.displayGuiScreen(parentScreen);
+        	return;
+    	}
+        if(message.textboxKeyTyped(par1, par2)) return;
+        if(mc.world != null && par2 == KeyLoader.setTranslation.getKeyCode()) {
+        	mc.displayGuiScreen(parentScreen);
+        	return ;
+        }
         super.keyTyped(par1, par2);
     }
      
     @Override
     protected void mouseClicked(int par1, int par2, int par3) throws IOException {
     	message.mouseClicked(par1, par2, par3);
+    	if(message.isFocused()) Keyboard.enableRepeatEvents(true);
+    	else Keyboard.enableRepeatEvents(false);
         super.mouseClicked(par1, par2, par3);
     }
     
@@ -90,6 +94,5 @@ public class Sender extends GuiScreen{
     @Override
     public void onGuiClosed() {
     	super.onGuiClosed();
-    	Keyboard.enableRepeatEvents(false);
     }
 }

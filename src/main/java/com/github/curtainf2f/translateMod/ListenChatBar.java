@@ -8,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
@@ -22,20 +23,6 @@ public class ListenChatBar {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	public String translate(String msg) {
-		try {
-			TransApi api = new TransApi(ConfigLoader.appid , ConfigLoader.securityKey);
-			String str = api.getTransResult(msg, "en", "zh");
-			JsonObject jsonObj = (JsonObject)new JsonParser().parse(str);
-			String res = jsonObj.get("trans_result").toString();
-			JsonArray js = new JsonParser().parse(res).getAsJsonArray();
-			jsonObj = (JsonObject)js.get(0);
-	        return jsonObj.get("dst").getAsString();
-		} catch (UnsupportedEncodingException e) {
-			return "翻译失败: " + e.getMessage();
-		}
-	}
-	
 	public ITextComponent getHoverMessage(String show, String hover) {
 		TextComponentString tx = new TextComponentString(show);
 		Style style = new Style();
@@ -48,8 +35,13 @@ public class ListenChatBar {
 	@SubscribeEvent
 	public void getMessage(ClientChatReceivedEvent event) {
 		String st = "类型: " + event.getType().name() + "  消息: " + event.getMessage().getFormattedText();
-		String msg = event.getMessage().getFormattedText().replaceAll("§\\w", "");
-		event.setMessage(new TextComponentString("翻译中..."));
-		event.setMessage(getHoverMessage(translate(msg), st));
+		String msg = event.getMessage().getFormattedText();
+		String need = event.getMessage().getUnformattedText();
+		try {
+			event.setMessage(new TextComponentString("翻译中..."));
+			event.setMessage(getHoverMessage(BaiduTranslator.translate(need, "auto", "zh"), st));
+		}catch(Exception e) {
+			event.setMessage(new TextComponentString(msg + "   " + e.getMessage()));
+		}
 	}
 }

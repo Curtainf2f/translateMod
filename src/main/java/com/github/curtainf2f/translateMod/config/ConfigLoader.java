@@ -16,4 +16,14 @@ public class ConfigLoader {
     @Config.LangKey("config.translatemod.general.securityKey")
     @Config.Name("securityKey")
     public static String securityKey = "";
+    
+    @Config.Comment("屏蔽列表(正则表达式), 在这之中被匹配到的文本一律不翻译")
+    @Config.LangKey("config.translatemod.general.shieldList")
+    @Config.Name("shieldList")
+    public static String[] shieldList = new String[] {"^[\\w ]+\\[WC\\d*\\][\\w ]*:"};
+    
+    @Config.Comment("匹配列表(正则表达式), 只有在这之中被匹配到的,且不在屏蔽列表里的才被翻译")
+    @Config.LangKey("config.translatemod.general.findList")
+    @Config.Name("findList")
+    public static String[] findList = new String[] {"^(?=\\w\\W)"};
 }
